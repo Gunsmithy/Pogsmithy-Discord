@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore specific text files
+BotAuth.txt
+BotSecret.txt
