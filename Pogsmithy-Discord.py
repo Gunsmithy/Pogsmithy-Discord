@@ -34,7 +34,7 @@ def was_deaf_or_mute_change(before_state, after_state):
 
 async def process_channel_event(user, channel, event):
     current_time_string = datetime.datetime.now(pytz.timezone('America/Toronto')).isoformat(timespec='seconds')
-    message_string = '[' + current_time_string + '] ' + str(user) + ' ' + event + ' ' + str(channel)
+    message_string = '[' + current_time_string + '] <@' + str(user.id) + '> ' + event + ' ' + str(channel)
     if channel.guild.id == sasstest_guild_id:
         print(str(channel.guild) + ': ' + message_string)
         await client.get_channel(sasstest_channel_id).send(message_string)
