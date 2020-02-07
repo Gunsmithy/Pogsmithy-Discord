@@ -2,10 +2,10 @@ import discord
 import datetime
 import pytz
 
-sasstest_guild_id = 354836976492347394
-sasstest_channel_id = 354836976949788674
-sass_guild_id = 100781489800609792
-sass_log_channel_id = 673315310752890929
+guild_to_log_channel_map = {
+    354836976492347394: 354836976949788674,  # SassTest
+    100781489800609792: 673315310752890929,  # Sassy Squad
+}
 
 with open('BotSecret.txt', 'r+') as auth_file:
     bot_secret = auth_file.readline()
@@ -34,15 +34,22 @@ def was_deaf_or_mute_change(before_state, after_state):
 
 async def process_channel_event(user, channel, event):
     current_time_string = datetime.datetime.now(pytz.timezone('America/Toronto')).isoformat(timespec='seconds')
-    message_string = '[' + current_time_string + '] <@' + str(user.id) + '> ' + event + ' ' + str(channel)
-    if channel.guild.id == sasstest_guild_id:
-        print(str(channel.guild) + ': ' + message_string)
-        await client.get_channel(sasstest_channel_id).send(message_string)
-    elif channel.guild.id == sass_guild_id:
-        print(str(channel.guild) + ': ' + message_string)
-        await client.get_channel(sass_log_channel_id).send(message_string)
-    else:
+
+    # Get the channel to log to based on the server ID if supported
+    try:
+        log_channel = client.get_channel(guild_to_log_channel_map[channel.guild.id])
+    except KeyError:
         print('Unsupported Guild: ' + str(channel.guild) + ' with ID: ' + str(channel.guild.id))
+        return
+
+    # Don't mention the user if they can view the server's log channel
+    if log_channel.permissions_for(user).read_messages:
+        message_string = '[' + current_time_string + '] ' + str(user) + ' ' + event + ' ' + str(channel)
+    else:
+        message_string = '[' + current_time_string + '] <@' + str(user.id) + '> ' + event + ' ' + str(channel)
+
+    print(str(channel.guild) + ': ' + message_string)
+    await log_channel.send(message_string)
 
 
 @client.event
