@@ -1,0 +1,11 @@
+# Ignore Python environment
+venv
+.python-version
+
+# Ignore Docker stuff
+docker-compose.yml
+Dockerfile
+
+# Ignore specific text files
+BotAuth.txt
+BotSecret.txt

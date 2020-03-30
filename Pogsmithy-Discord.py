@@ -1,16 +1,47 @@
-import discord
+import argparse
 import datetime
+import discord
+import os
 import pytz
+import sys
 
 guild_to_log_channel_map = {
     354836976492347394: 354836976949788674,  # SassTest
     100781489800609792: 673315310752890929,  # Sassy Squad
 }
 
-with open('BotSecret.txt', 'r+') as auth_file:
-    bot_secret = auth_file.readline()
-
 client = discord.Client()
+
+
+def read_secret_file(file_path):
+    with open(file_path, 'r') as auth_file:
+        return auth_file.readline()
+
+
+def config():
+    bot_secret = os.getenv('POGSMITHY_DISCORD_SECRET')
+    bot_secret_file = os.getenv('POGSMITHY_DISCORD_SECRET_FILE')
+    parser = argparse.ArgumentParser(description='Run Pogsmithy for Discord.')
+    parser.add_argument('--secret', dest='secret', help='The Discord secret used to run the bot.')
+    parser.add_argument('--secret-file', dest='secret_file', help='The path to the file containing the Discord secret '
+                                                                  'used to run the bot.')
+    args = parser.parse_args()
+
+    if args.secret is not None:
+        print('Using --secret command-line argument...')
+        return args.secret
+    if args.secret_file is not None:
+        print('Using --secret-file command-line argument...')
+        return read_secret_file(args.secret_file)
+    if bot_secret is not None:
+        print('Using POGSMITHY_DISCORD_SECRET environment variable...')
+        return bot_secret
+    if bot_secret_file is not None:
+        print('Using POGSMITHY_DISCORD_SECRET_FILE environment variable...')
+        return read_secret_file(bot_secret_file)
+
+    print('Bot secret could not be derived from environment or arguments. Aborting...')
+    sys.exit(1)
 
 
 @client.event
@@ -63,4 +94,11 @@ async def on_voice_state_update(member, before, after):
         else:
             await process_channel_event(user=member, channel=before.channel, event='left')
 
-client.run(bot_secret)
+
+def main():
+    bot_secret = config()
+    client.run(bot_secret)
+
+
+if __name__ == "__main__":
+    main()

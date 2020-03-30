@@ -1,0 +1,15 @@
+---
+version: "3.7"
+services:
+  pogsmithy-discord:
+    image: gunsmithy/personal:pogsmithy-discord
+    container_name: pogsmithy-discord
+    environment:
+      POGSMITHY_DISCORD_SECRET_FILE: /run/secrets/pogsmithy_discord_secret
+    secrets:
+      - pogsmithy_discord_secret
+    restart: unless-stopped
+
+secrets:
+  pogsmithy_discord_secret:
+    file: BotSecret.txt
