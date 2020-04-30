@@ -12,6 +12,49 @@ guild_to_log_channel_map = {
 
 client = discord.Client()
 
+banned_words_original = {'joel', 'ellie', 'tlou', 'naughtydog', 'lastofus'}
+banned_words_permutated = set().union(banned_words_original)
+leet_speak_map = {
+    'a': ['@'],
+    'o': ['0'],
+    'i': ['1', 'l', '!'],
+    'l': ['1', 'i', '!'],
+    't': ['7'],
+    's': ['5'],
+    'e': ['3'],
+    'b': ['8']
+}
+
+
+def create_permutations(passed_word):
+    index = 0
+    while index < len(passed_word):
+        original_word_start = passed_word[:index]
+        original_word_end = passed_word[index:]
+        for letter in original_word_end:
+            if letter in leet_speak_map.keys():
+                for new_letter in leet_speak_map[letter]:
+                    new_word = original_word_start + original_word_end.replace(letter, new_letter)
+                    if new_word not in banned_words_permutated:
+                        banned_words_permutated.add(new_word)
+                        create_permutations(new_word)
+        index += 1
+
+
+for original_word in banned_words_original:
+    create_permutations(original_word)
+
+
+def spoiler_check(message_passed):
+    formatted = message_passed.replace(' ', '')
+    formatted = formatted.lower()
+    length = len(formatted)
+    substring_list = [formatted[i:j + 1] for i in range(length) for j in range(i, length)]
+    for substring in substring_list:
+        if substring in banned_words_permutated:
+            return True
+    return False
+
 
 def read_secret_file(file_path):
     with open(file_path, 'r') as auth_file:
@@ -93,6 +136,14 @@ async def on_voice_state_update(member, before, after):
             await process_channel_event(user=member, channel=after.channel, event='joined')
         else:
             await process_channel_event(user=member, channel=before.channel, event='left')
+
+
+@client.event
+async def on_message(message):
+    if message.author != client.user and spoiler_check(message.content):
+        await message.delete()
+        channel = message.channel
+        await channel.send(f'<@{str(message.author.id)}> No Last of Us 2 spoilers! :angry:')
 
 
 def main():
