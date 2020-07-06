@@ -138,12 +138,25 @@ async def on_voice_state_update(member, before, after):
             await process_channel_event(user=member, channel=before.channel, event='left')
 
 
-@client.event
-async def on_message(message):
-    if message.author != client.user and spoiler_check(message.content):
-        await message.delete()
-        channel = message.channel
-        await channel.send(f'<@{str(message.author.id)}> No Last of Us 2 spoilers! :angry:')
+# @client.event
+# async def on_message(message):
+#     if message.author != client.user and spoiler_check(message.content):
+#         await message.delete()
+#         channel = message.channel
+#         await channel.send(f'<@{str(message.author.id)}> No Last of Us 2 spoilers! :angry:')
+#
+#
+# @client.event
+# async def on_raw_message_edit(payload):
+#     if payload.cached_message:
+#         message = payload.cached_message
+#     else:
+#         channel = client.get_channel(payload.channel_id)
+#         message = await channel.fetch_message(payload.message_id)
+#     if message.author != client.user and spoiler_check(message.content):
+#         await message.delete()
+#         channel = message.channel
+#         await channel.send(f'<@{str(message.author.id)}> No Last of Us 2 spoilers! :angry:')
 
 
 def main():
