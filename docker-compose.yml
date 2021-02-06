@@ -1,9 +1,10 @@
 ---
 version: "3.7"
 services:
-  pogsmithy-discord:
-    image: gunsmithy/personal:pogsmithy-discord
-    container_name: pogsmithy-discord
+  pogsmithy-discord-test:
+    build: .
+    image: gunsmithy/personal:pogsmithy-discord-test
+    container_name: pogsmithy-discord-test
     environment:
       POGSMITHY_DISCORD_SECRET_FILE: /run/secrets/pogsmithy_discord_secret
     secrets:
